@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex"/>
+<title>Proposal — Price comparison software</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2314a800'/%3E%3C/svg%3E"/>
+<style>
+  :root { --brand:#14a800; --ink:#0f1a0c; --muted:#5b6b57; --line:#e6ece3; --bg:#f7faf6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif; line-height:1.65; }
+  .wrap { max-width:760px; margin:0 auto; padding:0 22px 80px; }
+  header { background:linear-gradient(135deg,#0f2e00,#166b00); color:#fff; padding:40px 0 34px; }
+  header .wrap { padding-bottom:0; }
+  .eyebrow { font-size:12px; letter-spacing:.14em; text-transform:uppercase; opacity:.8; }
+  h1 { font-size:1.9rem; line-height:1.2; margin:.35em 0 .2em; }
+  .byline { opacity:.9; font-size:.95rem; }
+  main { margin-top:34px; }
+  h2 { font-size:1.15rem; margin:1.8em 0 .5em; color:#123; border-left:3px solid var(--brand); padding-left:10px; }
+  p { margin:.6em 0; }
+  ul { margin:.4em 0 .8em; padding-left:1.2em; }
+  li { margin:.25em 0; }
+  a { color:var(--brand); }
+  .diagram { margin:1.4em 0 1.8em; padding:22px; background:#fff; border:1px solid var(--line);
+    border-radius:14px; text-align:center; overflow-x:auto; }
+  .diagram .mermaid { display:block; }
+  .diagram svg { width:100%; max-width:600px; height:auto; margin:0 auto; }
+  .cta { margin:2.4em 0 0; padding:22px; background:#fff; border:1px solid var(--line);
+    border-radius:14px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
+  .btn { background:var(--brand); color:#fff; text-decoration:none; font-weight:600;
+    padding:11px 20px; border-radius:10px; }
+  footer { margin-top:40px; padding-top:18px; border-top:1px solid var(--line);
+    color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="eyebrow">Proposal · Mujaddid Mahmood</div>
+  <h1>Price comparison software</h1>
+  <div class="byline">Prepared by Mujaddid Mahmood</div>
+</div></header>
+<div class="wrap"><main>
+<p>Hey.</p>
+<p>You want your customers to upload a wholesaler order PDF and have the app flag every line that's cheaper elsewhere, auto-add those to that wholesaler's cart, and print scannable barcodes for the winners. Closest thing I've built: I re-architected the Freshprep order and pricing engine running ~$4M/month in transaction volume at 99.9% uptime.</p>
+<p>I'm a senior full-stack engineer with 6+ years building and scaling SaaS products, deep in Ruby on Rails and TypeScript/Next.js along with the data pipelines, cloud infrastructure, and CI/CD underneath them. I've taken products from MVP to market launch and re-architected platforms carrying ~$4M/month in transaction volume at 99.9% uptime, and founders bring me in as a technical partner who owns outcomes rather than tickets.</p>
+<p>Portfolio: <a href="https://mujaddid.dev" target="_blank" rel="noopener">https://mujaddid.dev</a></p>
+<p>GitHub: <a href="https://github.com/khawajaMujaddid" target="_blank" rel="noopener">https://github.com/khawajaMujaddid</a></p>
+<h2>My Proposed Approach</h2>
+<div class="diagram"><pre class="mermaid">%%{init: {'theme':'base','themeVariables':{'primaryColor':'#eaf7e6','primaryTextColor':'#0c2f00','primaryBorderColor':'#14a800','lineColor':'#39c421','secondaryColor':'#f2f7ff','tertiaryColor':'#f7f7f7','fontFamily':'Inter, Helvetica, Arial, sans-serif','fontSize':'15px'},'flowchart':{'curve':'basis','htmlLabels':true},'sequence':{'mirrorActors':false}}}%%
+graph TD
+    A[Customer uploads order PDF] --&gt; B[Parse lines and barcodes]
+    B --&gt; C[Match across wholesalers]
+    C --&gt; D[Cheaper items to cart]
+    C --&gt; E[Printable barcode sheet]
+    F[Owner admin and weekly caps] --&gt; C</pre></div>
+<p>PDF to line items: text-layer extraction with OCR fallback for scanned orders, each row parsed into description, size, barcode, qty and price.</p>
+<p>Matching: barcode first, then size plus fuzzy description with a confidence score. Low-confidence rows go to a review screen instead of silently carting the wrong product.</p>
+<p>Wholesaler adapters: one module per wholesaler holding that customer's own encrypted login. API where one exists, headless browser session where it doesn't, so new wholesalers plug in without touching the core.</p>
+<p>Concurrent users and caps: each comparison runs as a background job on Sidekiq/Redis so users never queue behind each other, with a quota table enforcing the weekly per-user limit.</p>
+<p>Output: cheaper items pushed to cart, plus a printable Code128/EAN-13 barcode sheet.</p>
+<h2>What You'll Get</h2>
+<p>Rails + Postgres app, private login per customer, owner admin to add/remove customers and set their caps, two wholesalers live at launch with a documented adapter pattern for the rest, deployed with CI/CD.</p>
+<h2>Timeline</h2>
+<p>4-5 weeks: parsing and matching, then the two adapters, then admin, caps and barcode printing, then testing against your real PDFs. At $2500 I'd fix scope to two wholesalers and quote each extra one after launch.</p>
+<h2>Your Questions</h2>
+<p>Recent similar experience: Freshprep's pricing engine above; EasyFill.AI, a document parsing pipeline serving 10,000+ daily active users; and Staffity, a multi-tenant SaaS I took from concept to launch with per-customer logins and admin user management.</p>
+<p>Links:</p>
+<p><a href="https://mujaddid.dev" target="_blank" rel="noopener">https://mujaddid.dev</a></p>
+<p><a href="https://github.com/khawajaMujaddid" target="_blank" rel="noopener">https://github.com/khawajaMujaddid</a></p>
+<h2>A Couple Of Questions</h2>
+<p>1. Which wholesalers go first, and do any expose an API, or is it all logging into their site?</p>
+<p>2. When description and size match but the barcodes differ, auto-add or hold for the customer to confirm?</p>
+<div class="cta">
+  <div><strong>Like this approach?</strong><br><span style="color:var(--muted)">Happy to jump on a quick call and get started.</span></div>
+  <a class="btn" href="https://www.upwork.com/freelancers/~01fdfda24d6f61c297" target="_blank" rel="noopener">Message me on Upwork</a>
+</div>
+<footer>Mujaddid Mahmood · <a href="https://mujaddid.dev" target="_blank" rel="noopener">Portfolio</a> · <a href="https://github.com/khawajaMujaddid" target="_blank" rel="noopener">GitHub</a></footer>
+</main></div>
+
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+    </script>
+</body>
+</html>
